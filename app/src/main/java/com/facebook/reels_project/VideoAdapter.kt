@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.facebook.reels_project.databinding.ListVideoBinding
 import com.google.android.exoplayer2.ExoPlayer
@@ -79,6 +80,31 @@ class VideoAdapter(
 
         holder.binding.tvTitle.text = model.title
         holder.setVideoPath(model.url)
+        holder.binding.dotsbutton.setOnClickListener {
+            val optionsBottomSheetFragment = OptionsBottomSheetFragment()
+            optionsBottomSheetFragment.setOptionsClickListener(object : OptionsBottomSheetFragment.OptionsClickListener {
+                override fun onCaptionClicked() {
+                    // Handle caption option click
+                    // You can implement the desired behavior here
+                }
+
+                override fun onDescriptionClicked() {
+                    // Handle description option click
+                    // You can implement the desired behavior here
+                }
+
+                override fun onReportClicked() {
+                    // Handle report option click
+                    // You can implement the desired behavior here
+                }
+            })
+
+            // Ensure that the context is an instance of FragmentActivity
+            if (context is FragmentActivity) {
+                optionsBottomSheetFragment.show((context as FragmentActivity).supportFragmentManager, optionsBottomSheetFragment.tag)
+            }
+        }
+
     }
     override fun getItemCount(): Int {
         return videos.size
