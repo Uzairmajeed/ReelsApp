@@ -5,10 +5,12 @@ import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.SeekBar
 import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.facebook.reels_project.databinding.ListVideoBinding
+import com.facebook.reels_project.databinding.MyCustomControllerLayoutBinding
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.PlaybackException
@@ -31,6 +33,8 @@ class VideoAdapter(
 
         private lateinit var exoPlayer: ExoPlayer
         private lateinit var mediaSource: MediaSource
+        private lateinit var progressBar: SeekBar
+
 
         fun setVideoPath(url: String) {
 
@@ -46,6 +50,7 @@ class VideoAdapter(
                         binding.pbLoading.visibility = View.VISIBLE
                     } else if (playbackState == Player.STATE_READY) {
                         binding.pbLoading.visibility = View.GONE
+                        updateSeekBar()
                     }
                 }
             })
@@ -57,7 +62,8 @@ class VideoAdapter(
 
             val dataSourceFactory = DefaultDataSource.Factory(context)
 
-            mediaSource = ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(MediaItem.fromUri(Uri.parse(url)))
+            mediaSource = ProgressiveMediaSource.Factory(dataSourceFactory)
+                .createMediaSource(MediaItem.fromUri(Uri.parse(url)))
 
             exoPlayer.setMediaSource(mediaSource)
             exoPlayer.prepare()
@@ -68,6 +74,52 @@ class VideoAdapter(
 
             videoPreparedListener.onVideoPrepared(ExoPlayerItem(exoPlayer, absoluteAdapterPosition))
         }
+
+        private fun updateSeekBar() {
+            val customControllerBinding: MyCustomControllerLayoutBinding? =
+                MyCustomControllerLayoutBinding.bind(binding.root)
+
+            // Check if binding was successful
+            if (customControllerBinding != null) {
+                progressBar = customControllerBinding.progressBar
+
+                // Set up the SeekBar max value based on video duration
+                val duration = exoPlayer.duration
+                progressBar.max = duration.toInt()
+
+                // Create a handler to update the SeekBar periodically
+                val handler = android.os.Handler()
+                handler.post(object : Runnable {
+                    override fun run() {
+                        // Update SeekBar progress based on current position
+                        val currentPosition = exoPlayer.currentPosition
+                        progressBar.progress = currentPosition.toInt()
+
+                        // Schedule the next update after a short delay (e.g., 100 milliseconds)
+                        handler.postDelayed(this, 100)
+                    }
+                })
+
+                // Set up a listener for SeekBar changes
+                progressBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                    override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                        // Update video playback position when SeekBar is changed by the user
+                        if (fromUser) {
+                            exoPlayer.seekTo(progress.toLong())
+                        }
+                    }
+
+                    override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                        // Not needed for your use case, but can be used for handling touch events
+                    }
+
+                    override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                        // Not needed for your use case, but can be used for handling touch events
+                    }
+                })
+            }
+        }
+
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VideoViewHolder {
