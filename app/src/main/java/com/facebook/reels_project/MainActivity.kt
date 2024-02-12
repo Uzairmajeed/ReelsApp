@@ -18,6 +18,10 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        binding.toolbar.backbutton.setOnClickListener {
+            finish()
+        }
+
         videos.add(
             Video(
                 "Big Buck Bunny",

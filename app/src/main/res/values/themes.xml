@@ -3,6 +3,9 @@
     <style name="Base.Theme.Reels_Project" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <!-- Set the status bar color -->
+        <item name="android:statusBarColor">#292424</item>
+
     </style>
 
     <style name="Theme.Reels_Project" parent="Base.Theme.Reels_Project" />
